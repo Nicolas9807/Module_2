@@ -6,37 +6,40 @@ import java.text.*;
 * Containing items and calculating price.
 */
 public class ShoppingCart {
-    public static enum ItemType { NEW, REGULAR, SECOND_FREE, SALE };
     /**
      * Tests all class methods.
      */
     public static void main(String[] args){
-        // TODO: add tests here
+
         ShoppingCart cart = new ShoppingCart();
-        cart.addItem("Apple", 0.99, 5, ItemType.NEW);
-        cart.addItem("Banana", 20.00, 4, ItemType.SECOND_FREE);
-        cart.addItem("A long piece of toilet paper", 17.20, 1, ItemType.SALE);
-        cart.addItem("Nails", 2.00, 500, ItemType.REGULAR);
+        cart.addItem("Apple", 0.99, 5, Item.ItemType.NEW);
+        cart.addItem("Banana", 20.00, 4, Item.ItemType.SECOND_FREE);
+        cart.addItem("A long piece of toilet paper", 17.20, 1, Item.ItemType.SALE);
+        cart.addItem("Nails", 2.00, 500, Item.ItemType.REGULAR);
         System.out.println(cart.formatTicket());
     }
     /**
      * Adds new item.
      *
      * @param title item title 1 to 32 symbols
-     * @param price item ptice in USD, > 0
-     * @param quantity item quantity, from 1
-     * @param type item type
+     * @param price item price in cents, > 0, < 1000
+     * @param quantity item quantity, from 1 to 1000
+     * @param type item type, on enum Item.Type
      *
+     * @throws IndexOutOfBoundsException if total items added over 99
      * @throws IllegalArgumentException if some value is wrong
      */
-    public void addItem(String title, double price, int quantity, ItemType type){
+    public void addItem(String title, double price, int quantity, Item.ItemType type){
+
         if (title == null || title.length() == 0 || title.length() > 32)
             throw new IllegalArgumentException("Illegal title");
-        if (price < 0.01)
+        if (price < 0.01 || price >= 1000.00)
             throw new IllegalArgumentException("Illegal price");
-        if (quantity <= 0)
+        if (quantity <= 0 || quantity > 1000)
             throw new IllegalArgumentException("Illegal quantity");
-        Item item = new Item();
+        if (items.size() == 99)
+            throw new IndexOutOfBoundsException("No more space in cart");
+        Item item = new Item(title, price, quantity, type);
         item.title = title;
         item.price = price;
         item.quantity = quantity;
@@ -63,21 +66,21 @@ public class ShoppingCart {
     public String formatTicket(){
         if (items.size() == 0)
             return "No items.";
-        List<String[]> lines = new ArrayList<String[]>();
+        List<String[]> lines = new ArrayList<>();
         String[] header = {"#","Item","Price","Quan.","Discount","Total"};
         int[] align = new int[] { 1, -1, 1, 1, 1, 1 };
         // formatting each line
         double total = 0.00;
         int index = 0;
         for (Item item : items) {
-            int discount = calculateDiscount(item.type, item.quantity);
+            int discount = calculateDiscount(item, item.quantity);
             double itemTotal = item.price * item.quantity * (100.00 - discount) / 100.00;
             lines.add(new String[]{
                 String.valueOf(++index),
                 item.title,
                 MONEY.format(item.price),
                 String.valueOf(item.quantity),
-                (discount == 0) ? "-" : (String.valueOf(discount) + "%"),
+                (discount == 0) ? "-" : (discount + "%"),
                 MONEY.format(itemTotal)
             });
             total += itemTotal;
@@ -88,11 +91,11 @@ public class ShoppingCart {
         int[] width = new int[]{0,0,0,0,0,0};
         for (String[] line : lines)
             for (int i = 0; i < line.length; i++)
-                width[i] = (int) Math.max(width[i], line[i].length());
+                width[i] = Math.max(width[i], line[i].length());
         for (int i = 0; i < header.length; i++)
-            width[i] = (int) Math.max(width[i], header[i].length());
+            width[i] = Math.max(width[i], header[i].length());
         for (int i = 0; i < footer.length; i++)
-            width[i] = (int) Math.max(width[i], footer[i].length());
+            width[i] = Math.max(width[i], footer[i].length());
         // line length
         int lineLength = width.length - 1;
         for (int w : width)
@@ -157,9 +160,9 @@ public class ShoppingCart {
      * For each full 10 not NEW items item gets additional 1% discount,
      * but not more than 80% total
      */
-    public static int calculateDiscount(ItemType type, int quantity){
+    public static int calculateDiscount(Item item , int quantity){
         int discount = 0;
-        switch (type) {
+        switch (item.type) {
             case NEW:
                 return 0;
             case REGULAR:
@@ -180,13 +183,6 @@ public class ShoppingCart {
         }
         return discount;
     }
-    /** item info */
-    private static class Item{
-        String title;
-        double price;
-        int quantity;
-        ItemType type;
-    }
     /** Container for added items */
-    private List<Item> items = new ArrayList<Item>();
+    private final List<Item> items = new ArrayList<>();
 }
