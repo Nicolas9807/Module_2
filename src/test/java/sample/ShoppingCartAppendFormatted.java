@@ -2,7 +2,7 @@ package sample;
 
 import org.junit.jupiter.api.Test;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
  *
@@ -12,7 +12,7 @@ import static org.junit.jupiter.api.Assertions.*;
 public class ShoppingCartAppendFormatted {
 
     /**
-     * Test ShoppingCartAppendFormatted of appendFormatted method, of class ShoppingCart.
+     * Test ShoppingCartAppendFormatted.java of appendFormatted method, of class ShoppingCart.
      */
     @Test
     public void testAppendFormatted() {
