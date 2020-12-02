@@ -12,11 +12,11 @@ import static org.junit.jupiter.api.Assertions.*;
 public class ShoppingCartAppendFormatted {
 
     /**
-     * Test of appendFormatted method, of class ShoppingCart.
+     * Test ShoppingCartAppendFormatted of appendFormatted method, of class ShoppingCart.
      */
     @Test
     public void testAppendFormatted() {
-        StringBuilder sb = new StringBuilder();
+        StringBuilder sb;
         sb = new StringBuilder();
         ShoppingCart.appendFormatted(sb, "123451", -1, 5);
         assertEquals(sb.toString(), "12345 ");
